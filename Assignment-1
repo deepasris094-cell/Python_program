@@ -1,1 +1,55 @@
+from decimal import Decimal, ROUND_HALF_UP
 
+BASE_RATE = Decimal("32.00")
+FAT_STEP_VALUE = Decimal("0.45")
+SNF_STEP_VALUE = Decimal("0.30")
+BONUS_PER_LITRE = Decimal("0.50")
+BONUS_LIMIT = Decimal("500")
+
+def rate_per_litre(fat, snf):
+    fat_steps = ((fat - Decimal("3.50")) / Decimal("0.10")).quantize(
+        Decimal("1"), rounding=ROUND_HALF_UP
+    )
+    snf_steps = ((snf - Decimal("8.50")) / Decimal("0.10")).quantize(
+        Decimal("1"), rounding=ROUND_HALF_UP
+    )
+
+    rate = BASE_RATE + fat_steps * FAT_STEP_VALUE + snf_steps * SNF_STEP_VALUE
+    return rate.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+def payout(litres, fat, snf):
+    return litres * rate_per_litre(fat, snf)
+
+entries = [
+    (Decimal("55"), Decimal("3.60"), Decimal("8.60")),
+    (Decimal("60"), Decimal("3.70"), Decimal("8.70")),
+    (Decimal("58"), Decimal("3.50"), Decimal("8.50")),
+    (Decimal("62"), Decimal("3.80"), Decimal("8.60")),
+    (Decimal("57"), Decimal("3.60"), Decimal("8.70")),
+    (Decimal("59"), Decimal("3.70"), Decimal("8.50")),
+    (Decimal("61"), Decimal("3.50"), Decimal("8.60")),
+    (Decimal("56"), Decimal("3.80"), Decimal("8.70")),
+    (Decimal("60"), Decimal("3.60"), Decimal("8.50")),
+    (Decimal("58"), Decimal("3.70"), Decimal("8.60"))
+]
+
+total_litres = sum((entry[0] for entry in entries), Decimal("0"))
+bonus_rate = BONUS_PER_LITRE if total_litres > BONUS_LIMIT else Decimal("0.00")
+total_pay = Decimal("0.00")
+
+print("TEN-DAY MILK PAYMENT")
+print("-" * 57)
+print("Day  Litres  Fat   SNF   Rate/Litre  Payment")
+print("-" * 57)
+
+for day, (litres, fat, snf) in enumerate(entries, 1):
+    rate = rate_per_litre(fat, snf)
+    amount = payout(litres, fat, snf) + litres * bonus_rate
+    total_pay += amount
+
+    print(f"{day:>2}   {litres:>5}   {fat:>4}  {snf:>4}   Rs.{rate:>6}   Rs.{amount:>7.2f}")
+
+print("-" * 57)
+print("Total litres:", total_litres)
+print("Bonus per litre:", bonus_rate)
+print("Total payment: Rs.", total_pay.quantize(Decimal("0.01")))
