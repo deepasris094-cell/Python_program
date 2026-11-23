@@ -1,1 +1,25 @@
+import time
 
+def build_plus(items):
+    result = ''
+    for item in items:
+        result += item + '\n'
+    return result
+
+def build_join(items):
+    return '\n'.join(items)
+
+items = [f'Order {i}' for i in range(20000)]
+
+start = time.perf_counter()
+a = build_plus(items)
+plus_time = time.perf_counter() - start
+
+start = time.perf_counter()
+b = build_join(items)
+join_time = time.perf_counter() - start
+
+print('Same output:', a.rstrip() == b)
+print('Items:', len(items))
+print('Plus time:', round(plus_time, 4))
+print('Join time:', round(join_time, 4))
