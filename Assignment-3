@@ -1,1 +1,30 @@
+import re
 
+contacts = [
+    ("Dr. Ravi Kumar", "+91 98400 12345", "ravi@mail.com"),
+    ("Ravi Kumar", "9840012345", "r.kumar@mail.com"),
+    ("Anu", "9876543210", "anu@mail.com"),
+    ("Anu", "+91 98765 43210", "anu@mail.com")
+]
+
+merged = {}
+
+for name, phone, email in contacts:
+    phone = re.sub(r"\D", "", phone)
+    if phone.startswith("91") and len(phone) == 12:
+        phone = phone[2:]
+    key = phone or email.lower()
+
+    if key not in merged:
+        merged[key] = {"names": set(), "phones": set(), "emails": set()}
+
+    merged[key]["names"].add(name)
+    if phone:
+        merged[key]["phones"].add(phone)
+    if email:
+        merged[key]["emails"].add(email.lower())
+
+for person in merged.values():
+    print("Names:", sorted(person["names"]))
+    print("Phones:", sorted(person["phones"]))
+    print("Emails:", sorted(person["emails"]))
