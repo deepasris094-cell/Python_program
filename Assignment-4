@@ -1,1 +1,46 @@
+import re
 
+records = [
+    ("192311001;Arun;ECE;arun@mail.com", "department1.txt", 1),
+    ("192311002;Bala;CSE;bala@mail.com", "department1.txt", 2),
+    ("192311001;Arun;ECE;arun@mail.com", "department2.txt", 1),
+    ("192311003;Cathy;IT;invalid-email", "department2.txt", 2),
+    ("192311004;Deepa;EEE;deepa@mail.com", "department2.txt", 3)
+]
+
+master = {}
+errors = []
+
+for line, filename, number in records:
+    try:
+        parts = line.split(";")
+
+        if len(parts) != 4:
+            raise ValueError("Expected 4 fields")
+
+        reg, name, dept, email = parts
+
+        if not reg or not name or not dept:
+            raise ValueError("Missing field")
+
+        if not re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email):
+            raise ValueError("Invalid email")
+
+        if reg in master:
+            errors.append((filename, number, "Duplicate " + reg))
+        else:
+            master[reg] = (name, dept, email)
+
+    except ValueError as error:
+        errors.append((filename, number, str(error)))
+
+print("Valid:", len(master))
+print("Errors:", len(errors))
+
+print("Master registrations:")
+for reg, details in sorted(master.items()):
+    print(reg, details)
+
+print("Error log:")
+for error in errors:
+    print(error)
